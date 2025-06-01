@@ -73,8 +73,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     : 0;
 
   return (
-    <Card className="p-0 group cursor-pointer overflow-hidden border shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] ">
-      <Link href={`/product/${product.id}`}>
+    <Card className="p-0 group cursor-pointer overflow-hidden border shadow-lg dark:shadow-gray-700  hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] ">
+      <Link href={`/products/${product.id}`}>
         <div className="relative overflow-hidden">
           <Image
             src={product.image}
@@ -98,7 +98,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <Button
         variant="secondary"
         size="icon"
-        className={`absolute top-3 right-3 p-2 rounded-full transition-all duration-300 flex items-center justify-center
+        className={`absolute top-3 right-3 p-2 rounded-full transition-all duration-300 flex items-center justify-center bg-red-500
         `}
         onClick={(e) => {
           e.stopPropagation();
@@ -106,7 +106,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         }}
       >
         <Heart
-          className="text-red-500 fill-current"
+          // size={20}
+          className="size-5 text-white fill-current"
           // className={`w-4 h-4 ${
           //   isInWishlist(product.id) ? "fill-current" : ""
           // }`}

@@ -18,7 +18,7 @@ export default function Header() {
   return (
     <>
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border dark:border-gray-700">
-        <div className="container mx-auto px-4 flex flex-col gap-1 items-center">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8  flex flex-col gap-1 items-center">
           <div className="flex items-center justify-between h-16 w-full">
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-4 ">
@@ -47,7 +47,7 @@ export default function Header() {
                 className="md:hidden hover:text-primary dark:hover:bg-gray-700"
                 onClick={() => setIsSearchOpen(true)}
               >
-                <Search size={28} strokeWidth={2.5} />
+                <Search className="size-5" />
               </Button>
 
               <DarkModeToggle />
@@ -57,7 +57,7 @@ export default function Header() {
                 size="icon"
                 className="relative hover:text-primary dark:hover:bg-gray-700"
               >
-                <Heart size={28} strokeWidth={2.5} />
+                <Heart className="size-5" />
                 {wishlistItems.length > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                     {wishlistItems.length}
@@ -71,7 +71,7 @@ export default function Header() {
                 className="relative hover:text-primary dark:hover:bg-gray-700"
                 // onClick={() => setIsCartOpen(true)}
               >
-                <ShoppingCart size={28} strokeWidth={2.5} />
+                <ShoppingCart className="size-5" />
                 {cartItems.length > 0 && (
                   <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                     {cartItems.length}

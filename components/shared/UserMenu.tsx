@@ -55,9 +55,9 @@ export default function UserMenu() {
           <Button
             variant="ghost"
             size="icon"
-            className="hover:text-primary dark:hover:bg-gray-700"
+            className="hover:text-primary dark:hover:bg-gray-700 "
           >
-            <User size={28} strokeWidth={2.5} />
+            <User className="size-5" />
           </Button>
         )}
       </DropdownMenuTrigger>
