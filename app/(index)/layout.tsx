@@ -1,3 +1,4 @@
+import Footer from "@/components/shared/Footer";
 import Header from "@/components/shared/Header";
 import { ReactNode } from "react";
 
@@ -7,9 +8,10 @@ interface IndexLayoutProps {
 
 export default function IndexLayout({ children }: IndexLayoutProps) {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen flex flex-col ">
       <Header />
-      <main>{children}</main>
+      <main className="flex-grow">{children}</main>
+      <Footer />
     </div>
   );
 }
