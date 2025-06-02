@@ -9,11 +9,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useSearchParams } from "next/navigation";
+import { IProduct, ProductStatus } from "@/types/product";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 export default function ProductsPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+
   const category = searchParams.get("category");
   const subcategory = searchParams.get("subcategory");
   const brand = searchParams.get("brand");
@@ -26,64 +29,44 @@ export default function ProductsPage() {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
 
   // Mock products data
-  const products = [
+  const products: IProduct[] = [
     {
-      id: 1,
-      name: "Wireless Bluetooth Headphones",
-      price: 99.99,
-      originalPrice: 149.99,
-      image:
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300",
-      rating: 4.5,
-      reviews: 324,
-      brand: "TechAudio",
-      isOnSale: true,
-      category: "Electronics",
-      subcategory: "Headphones",
-    },
-    {
-      id: 2,
-      name: "Smart Watch Series 8",
-      price: 399.99,
-      image:
-        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300",
-      rating: 4.8,
-      reviews: 567,
-      brand: "Apple",
-      isOnSale: false,
-      category: "Electronics",
-      subcategory: "Smartphones",
-    },
-    {
-      id: 3,
-      name: "Premium Gaming Mouse",
-      price: 79.99,
-      originalPrice: 99.99,
-      image:
-        "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=300",
-      rating: 4.3,
-      reviews: 189,
-      brand: "Logitech",
-      isOnSale: true,
-      category: "Electronics",
-      subcategory: "Accessories",
-    },
-    {
-      id: 4,
-      name: "Wireless Charging Pad",
-      price: 49.99,
-      image:
-        "https://images.unsplash.com/photo-1586953983027-d7508a64f4bb?w=300",
-      rating: 4.1,
-      reviews: 94,
-      brand: "Samsung",
-      isOnSale: false,
-      category: "Electronics",
-      subcategory: "Accessories",
+      id: 23,
+      name: "iPhone 16 Pro Max ",
+      description: "this is iPhone 16 Pro Max ",
+      quantity: 88,
+      price: 1199.99,
+      priceAfterDiscount: 0,
+      imageCover:
+        "https://res.cloudinary.com/dquxld87w/image/upload/v1747566561/ecommerce/tvimr1x6o3fa7bxd0tod.jpg",
+      images: [
+        "https://res.cloudinary.com/dquxld87w/image/upload/v1747566562/ecommerce/tnqg50o8cea6nkll3vcn.jpg",
+        "https://res.cloudinary.com/dquxld87w/image/upload/v1747566562/ecommerce/rftzcdnm9glxryjiau1x.jpg",
+      ],
+      sold: 12,
+      ratingsAverage: "0.0",
+      ratingsQuantity: 0,
+      status: "Active" as ProductStatus,
+      warranty: null,
+      weight: null,
+      dimensions: null,
+      createdAt: new Date("2025-05-18T11:09:21.422Z"),
+      updatedAt: new Date("2025-05-18T16:25:24.376Z"),
+      category: {
+        id: 23,
+        name: "Mobiles",
+        slug: "mobiles",
+      },
+      subCategory: null,
+      brand: {
+        id: 2,
+        name: "Apple",
+        slug: "apple",
+      },
     },
   ];
 
-  const categories = ["Electronics", "Fashion", "Home & Garden", "Sports"];
+  const categories = ["electronics", "fashion", "Home & Garden", "Sports"];
 
   const subcategories = ["Smartphones", "Laptops", "Headphones", "Accessories"];
   const brands = ["Apple", "Samsung", "TechAudio", "Logitech"];
@@ -105,17 +88,17 @@ export default function ProductsPage() {
   if (brand && !selectedBrands.includes(brand) && brands.includes(brand)) {
     setSelectedBrands((prev) => [...prev, brand]);
   }
-
   const filteredProducts = products.filter((product) => {
     const categoryMatch =
       selectedCategories.length === 0 ||
-      selectedCategories.includes(product.category);
+      selectedCategories.includes(product.category.slug);
     const subcategoryMatch =
       selectedSubcategories.length === 0 ||
-      selectedSubcategories.includes(product.subcategory);
-
+      (product.subCategory &&
+        selectedSubcategories.includes(product.subCategory?.slug));
     const brandMatch =
-      selectedBrands.length === 0 || selectedBrands.includes(product.brand);
+      selectedBrands.length === 0 ||
+      (product.brand && selectedBrands.includes(product.brand?.slug));
     return categoryMatch && brandMatch && subcategoryMatch;
   });
 
@@ -145,11 +128,27 @@ export default function ProductsPage() {
     }
   };
 
+  const handleClearFilters = () => {
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.delete("category");
+    newParams.delete("subcategory");
+    newParams.delete("brand");
+
+    setSelectedCategories([]);
+    setSelectedBrands([]);
+    setSelectedSubcategories([]);
+    setSortBy("featured");
+
+    router.push(`?${newParams.toString()}`);
+  };
+
   return (
     <main>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">All Products</h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <h1 className="text-3xl font-bold mb-2 text-foreground">
+          All Products
+        </h1>
+        <p className="text-muted-foreground">
           Discover our complete collection
         </p>
       </div>
@@ -158,7 +157,7 @@ export default function ProductsPage() {
         {/* Filters Sidebar */}
         <div className="lg:w-64 space-y-6">
           <div className="p-6 rounded-lg shadow-sm dark:bg-gray-900 dark:shadow-gray-500 bg-white">
-            <h3 className="font-semibold mb-4">Categories</h3>
+            <h3 className="font-semibold mb-4 text-foreground">Categories</h3>
             <div className="space-y-3">
               {categories.map((category) => (
                 <div key={category} className="flex items-center space-x-2">
@@ -168,10 +167,11 @@ export default function ProductsPage() {
                     onCheckedChange={(checked) =>
                       handleCategoryChange(category, checked as boolean)
                     }
+                    className="size-[18px] dark:border-gray-500"
                   />
                   <label
                     htmlFor={category}
-                    className="text-sm cursor-pointer text-gray-700 dark:text-gray-300"
+                    className="text-sm cursor-pointer text-muted-foreground"
                   >
                     {category}
                   </label>
@@ -181,7 +181,9 @@ export default function ProductsPage() {
           </div>
 
           <div className="p-6 rounded-lg shadow-sm dark:bg-gray-900 dark:shadow-gray-500 bg-white">
-            <h3 className="font-semibold mb-4">Sub Categories</h3>
+            <h3 className="font-semibold mb-4 text-foreground">
+              Sub Categories
+            </h3>
             <div className="space-y-3">
               {subcategories.map((subcategory) => (
                 <div key={subcategory} className="flex items-center space-x-2">
@@ -191,10 +193,11 @@ export default function ProductsPage() {
                     onCheckedChange={(checked) =>
                       handleSubcategoryChange(subcategory, checked as boolean)
                     }
+                    className="size-[18px] dark:border-gray-500"
                   />
                   <label
                     htmlFor={subcategory}
-                    className="text-sm cursor-pointer text-gray-700 dark:text-gray-300"
+                    className="text-sm cursor-pointer text-muted-foreground"
                   >
                     {subcategory}
                   </label>
@@ -203,7 +206,7 @@ export default function ProductsPage() {
             </div>
           </div>
           <div className="p-6 rounded-lg shadow-sm dark:bg-gray-900 dark:shadow-gray-500 bg-white">
-            <h3 className="font-semibold mb-4">Brands</h3>
+            <h3 className="font-semibold mb-4 text-foreground">Brands</h3>
             <div className="space-y-3">
               {brands.map((brand) => (
                 <div key={brand} className="flex items-center space-x-2">
@@ -213,10 +216,11 @@ export default function ProductsPage() {
                     onCheckedChange={(checked) =>
                       handleBrandChange(brand, checked as boolean)
                     }
+                    className="size-[18px] dark:border-gray-500"
                   />
                   <label
                     htmlFor={brand}
-                    className="text-sm cursor-pointer text-gray-700 dark:text-gray-300"
+                    className="text-sm cursor-pointer text-muted-foreground"
                   >
                     {brand}
                   </label>
@@ -226,15 +230,12 @@ export default function ProductsPage() {
           </div>
 
           <div className="p-6 rounded-lg shadow-sm dark:bg-gray-900 dark:shadow-gray-500 bg-white">
-            <h3 className="font-semibold mb-4">Clear Filters</h3>
+            <h3 className="font-semibold mb-4 text-foreground">
+              Clear Filters
+            </h3>
             <Button
               variant="outline"
-              onClick={() => {
-                setSelectedCategories([]);
-                setSelectedBrands([]);
-                setSelectedSubcategories([]);
-                setSortBy("featured");
-              }}
+              onClick={handleClearFilters}
               className="w-full"
             >
               Reset All
@@ -245,7 +246,7 @@ export default function ProductsPage() {
         {/* Products Grid */}
         <div className="flex-1">
           <div className="flex justify-between items-center mb-6">
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-muted-foreground">
               Showing {filteredProducts.length} products
             </p>
             <Select value={sortBy} onValueChange={setSortBy}>
@@ -270,17 +271,12 @@ export default function ProductsPage() {
 
           {filteredProducts.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-500 dark:text-gray-400 text-lg">
+              <p className="text-muted-foreground text-lg">
                 No products found matching your filters.
               </p>
               <Button
                 variant="outline"
-                onClick={() => {
-                  setSelectedCategories([]);
-                  setSelectedBrands([]);
-                  setSelectedSubcategories([]);
-                  setSortBy("featured");
-                }}
+                onClick={handleClearFilters}
                 className="mt-4"
               >
                 Clear Filters

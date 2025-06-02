@@ -1,5 +1,5 @@
 "use client";
-import { Heart, Search, ShoppingCart } from "lucide-react";
+import { Search, ShoppingCart } from "lucide-react";
 import { useState } from "react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -11,9 +11,10 @@ import { DarkModeToggle } from "./DarkModeToggle";
 import Link from "next/link";
 
 import UserMenu from "./UserMenu";
+import WishlistIndicator from "./WishlistIndicator";
 export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const wishlistItems = [1, 2, 3, 4];
+
   const cartItems = [3, 4];
   return (
     <>
@@ -52,18 +53,7 @@ export default function Header() {
 
               <DarkModeToggle />
 
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative hover:text-primary dark:hover:bg-gray-700"
-              >
-                <Heart className="size-5" />
-                {wishlistItems.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {wishlistItems.length}
-                  </span>
-                )}
-              </Button>
+              <WishlistIndicator />
 
               <Button
                 variant="ghost"
