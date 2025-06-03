@@ -41,8 +41,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <Link href={`/products/${product.id}`}>
         <div className="relative overflow-hidden">
           <Image
-            src={product.imageCover}
-            alt={product.name}
+            src={product.imageCover || ""}
+            alt={product.name || "Product "}
             className="w-full h-64 object-cover object-center transition-transform duration-300 group-hover:scale-110"
             width={256}
             height={256}

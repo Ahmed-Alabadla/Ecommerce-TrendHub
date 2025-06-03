@@ -1,5 +1,5 @@
 "use client";
-import { Search, ShoppingCart } from "lucide-react";
+import { Search } from "lucide-react";
 import { useState } from "react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -12,10 +12,12 @@ import Link from "next/link";
 
 import UserMenu from "./UserMenu";
 import WishlistIndicator from "./WishlistIndicator";
+import { usePathname } from "next/navigation";
+import CartIndicator from "./CartIndicator";
 export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const pathname = usePathname();
 
-  const cartItems = [3, 4];
   return (
     <>
       <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-sm border-b border-border dark:border-gray-700">
@@ -55,19 +57,7 @@ export default function Header() {
 
               <WishlistIndicator />
 
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative hover:text-primary dark:hover:bg-gray-700"
-                // onClick={() => setIsCartOpen(true)}
-              >
-                <ShoppingCart className="size-5" />
-                {cartItems.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {cartItems.length}
-                  </span>
-                )}
-              </Button>
+              <CartIndicator />
 
               <UserMenu />
             </div>
@@ -76,34 +66,28 @@ export default function Header() {
           <nav className="hidden md:flex items-center space-x-6 mb-1.5">
             <Link
               href="/products"
-              className="text-foreground hover:text-primary transition-colors font-medium"
+              className={`text-foreground hover:text-primary transition-colors font-medium ${
+                pathname === "/products" && "text-primary"
+              }`}
             >
-              All Products
+              Products Catalog
             </Link>
             <Link
               href="/categories"
-              className="text-foreground hover:text-primary transition-colors font-medium"
+              className={`text-foreground hover:text-primary transition-colors font-medium ${
+                pathname === "/categories" && "text-primary"
+              }`}
             >
               Categories
             </Link>
-            <a
-              href="#"
-              className="text-foreground hover:text-primary transition-colors font-medium"
+            <Link
+              href="/orders"
+              className={`text-foreground hover:text-primary transition-colors font-medium ${
+                pathname === "/orders" && "text-primary"
+              }`}
             >
-              Fashion
-            </a>
-            <a
-              href="#"
-              className="text-foreground hover:text-primary transition-colors font-medium"
-            >
-              Home & Garden
-            </a>
-            <a
-              href="#"
-              className="text-foreground hover:text-primary transition-colors font-medium"
-            >
-              Sports
-            </a>
+              My Orders
+            </Link>
           </nav>
         </div>
       </header>

@@ -36,7 +36,7 @@ export default function ProductsPage() {
       description: "this is iPhone 16 Pro Max ",
       quantity: 88,
       price: 1199.99,
-      priceAfterDiscount: 0,
+      priceAfterDiscount: 1099.99,
       imageCover:
         "https://res.cloudinary.com/dquxld87w/image/upload/v1747566561/ecommerce/tvimr1x6o3fa7bxd0tod.jpg",
       images: [
