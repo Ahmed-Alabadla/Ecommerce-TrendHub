@@ -1,8 +1,8 @@
 import React from "react";
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle2, CircleX, Truck } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Separator } from "../ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 
 interface OrderDetailsProps {

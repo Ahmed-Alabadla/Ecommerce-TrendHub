@@ -1,11 +1,11 @@
 import Loading from "@/app/loading";
-import Categories from "@/components/pages/Categories";
+import Profile from "@/components/pages/Profile";
 import { Suspense } from "react";
 
-export default function CategoriesPage() {
+export default function ProfilePage() {
   return (
     <Suspense fallback={<Loading />}>
-      <Categories />
+      <Profile />
     </Suspense>
   );
 }

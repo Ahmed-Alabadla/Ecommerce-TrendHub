@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -15,9 +15,9 @@ import {
   Trash2,
   Truck,
 } from "lucide-react";
-import { Badge } from "../ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import ReviewForm from "./ReviewForm";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ReviewForm from "../shared/ReviewForm";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,13 +28,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../ui/alert-dialog";
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import WishlistButton from "./WishlistButton";
+import WishlistButton from "../shared/WishlistButton";
 import { IProduct, ProductStatus } from "@/types/product";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-export default function ProductPage({ id }: { id: string }) {
+export default function Product({ id }: { id: string }) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
 

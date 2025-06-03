@@ -1,6 +1,6 @@
 import React from "react";
 import ProductCard from "./ProductCard";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 
 const featuredProducts = [
   {

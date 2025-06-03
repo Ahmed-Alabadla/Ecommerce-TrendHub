@@ -1,21 +1,21 @@
 import React from "react";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
 export default function Hero() {
   return (
-    <section className="relative bg-gradient-to-br from-blue-50 to-purple-50 py-20 px-4 overflow-hidden">
+    <section className="relative  py-20 px-4 overflow-hidden">
       <div className="container mx-auto text-center px-4 relative z-10">
         <div className="flex flex-col lg:flex-row items-center">
           <div className="lg:w-1/2 space-y-8 mb-12 lg:mb-0">
-            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
+            <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight">
               Discover Amazing
               <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Products
               </span>
             </h1>
 
-            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
               Shop the latest trends in electronics, fashion, and more. Get
               exclusive deals and fast shipping on thousands of products.
             </p>

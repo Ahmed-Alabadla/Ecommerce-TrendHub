@@ -1,7 +1,7 @@
 "use client";
 import { IProduct } from "@/types/product";
 import React, { useEffect, useState } from "react";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 import { toast } from "sonner";
 import { useWishlist } from "@/hooks/useWishlist";

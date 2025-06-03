@@ -1,4 +1,4 @@
-import ProductPage from "@/components/shared/ProductPage";
+import Product from "@/components/pages/Product";
 import React from "react";
 
 export default async function ProductDetailsPage({
@@ -10,5 +10,5 @@ export default async function ProductDetailsPage({
   if (!id) {
     throw new Error("Product ID is required");
   }
-  return <ProductPage id={id} />;
+  return <Product id={id} />;
 }
