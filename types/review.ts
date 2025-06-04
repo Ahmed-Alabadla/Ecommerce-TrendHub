@@ -1,15 +1,33 @@
+import { IProduct } from "./product";
+import { IUser } from "./user";
+
 export interface IReview {
-  id: string;
-  productId: string;
+  id: number;
   rating: number;
   comment: string;
   createdAt: Date;
   updatedAt: Date;
-  userId: string;
+  product: IProduct;
+  user: IUser;
 }
 
 export interface IReviewForm {
-  productId: string;
   rating: number;
-  comment: string;
+  comment?: string;
+}
+
+export interface ReviewsQueryParams {
+  productId?: number;
+  page?: number;
+  limit?: number;
+}
+
+export interface ReviewsResponse {
+  data: IReview[];
+  meta: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    last_page: number;
+  };
 }

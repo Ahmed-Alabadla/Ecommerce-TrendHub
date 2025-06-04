@@ -13,11 +13,12 @@ import { TicketCheck, LogOut, User, LogIn, UserPlus } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import { InstallButton } from "./InstallButton";
-import { useProfile } from "@/hooks/useProfile";
+import { PROFILE_QUERY_KEY, useProfile } from "@/hooks/useProfile";
 import { logout } from "@/actions/auth";
 import { toast } from "sonner";
 import { redirect } from "next/navigation";
 import { getCookie } from "cookies-next/client";
+import { queryClient } from "@/lib/react-query/client";
 
 export default function UserMenu() {
   const token = getCookie("access_token");
@@ -26,12 +27,14 @@ export default function UserMenu() {
   const { data: profile } = useProfile();
 
   const handleClickLogout = async () => {
+    // Clear only the profile cache when logging out
+    queryClient.removeQueries({ queryKey: PROFILE_QUERY_KEY });
     await logout().then(() => {
       toast.success("Logout successful!", {
         description: "You have been logged out successfully.",
       });
 
-      redirect("/auth/login");
+      redirect("/");
     });
   };
 

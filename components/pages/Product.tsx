@@ -31,18 +31,40 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import WishlistButton from "../shared/WishlistButton";
-import { IProduct, ProductStatus } from "@/types/product";
+import { ProductStatus } from "@/types/product";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useProduct } from "@/hooks/useProduct";
+import { useDeleteReview, useInfiniteReviews } from "@/hooks/useReview";
+import { useProfile } from "@/hooks/useProfile";
 
 export default function Product({ id }: { id: string }) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
 
-  if (!id) {
+  // Fetch product data using useProduct hook
+  const { data: product, isLoading, error } = useProduct(id);
+
+  const deleteReviewMutation = useDeleteReview();
+
+  // ============ Reviews =============
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isPending: loadingReviews,
+  } = useInfiniteReviews({ limit: 10, productId: product?.id });
+  const reviews = data?.pages.flatMap((page) => page.data) ?? [];
+  const totalCount = data?.pages[0]?.meta.total ?? 0;
+
+  //  =============== user ================
+  const { data: user } = useProfile();
+
+  if (!id || error || !product) {
     return (
       <div className="text-center p-8">
         <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
@@ -55,97 +77,15 @@ export default function Product({ id }: { id: string }) {
       </div>
     );
   }
-  const product: IProduct = {
-    id: 23,
-    name: "iPhone 16 Pro Max ",
-    description: "this is iPhone 16 Pro Max ",
-    quantity: 88,
-    price: 1199.99,
-    priceAfterDiscount: 0,
-    imageCover:
-      "https://res.cloudinary.com/dquxld87w/image/upload/v1747566561/ecommerce/tvimr1x6o3fa7bxd0tod.jpg",
-    images: [
-      "https://res.cloudinary.com/dquxld87w/image/upload/v1747566562/ecommerce/tnqg50o8cea6nkll3vcn.jpg",
-      "https://res.cloudinary.com/dquxld87w/image/upload/v1747566562/ecommerce/rftzcdnm9glxryjiau1x.jpg",
-    ],
-    sold: 12,
-    ratingsAverage: "0.0",
-    ratingsQuantity: 0,
-    status: "Active" as ProductStatus,
-    warranty: null,
-    weight: null,
-    dimensions: null,
-    createdAt: new Date("2025-05-18T11:09:21.422Z"),
-    updatedAt: new Date("2025-05-18T16:25:24.376Z"),
-    category: {
-      id: 23,
-      name: "Mobiles",
-      slug: "mobiles",
-    },
-    subCategory: null,
-    brand: {
-      id: 2,
-      name: "Apple",
-      slug: "apple",
-    },
-  };
-  const productReviews = [
-    {
-      id: 1,
-      user: {
-        id: 1,
-        name: "John Doe",
-      },
-      rating: 4,
-      comment:
-        "Great sound quality and comfortable fit. The noise cancellation works well, but the battery life could be better.",
-      createdAt: "2023-10-01T12:00:00Z",
-    },
-    {
-      id: 2,
-      user: {
-        id: 2,
-        name: "Jane Smith",
-      },
-      rating: 5,
-      comment:
-        "Absolutely love these headphones! The sound is crystal clear and the design is sleek. Highly recommend!",
-      createdAt: "2023-10-02T14:30:00Z",
-    },
-    {
-      id: 3,
-      user: {
-        id: 3,
-        name: "Alice Johnson",
-      },
-      rating: 3,
-      comment:
-        "Decent headphones, but I expected more for the price. The sound is good, but the fit is a bit tight for long listening sessions.",
-      createdAt: "2023-10-03T09:15:00Z",
-    },
-    {
-      id: 4,
-      user: {
-        id: 4,
-        name: "Bob Brown",
-      },
-      rating: 2,
-      comment:
-        "Not impressed. The sound quality is average and the build feels cheap. I expected better from this brand.",
-      createdAt: "2023-10-04T16:45:00Z",
-    },
-    {
-      id: 5,
-      user: {
-        id: 5,
-        name: "Charlie Green",
-      },
-      rating: 4,
-      comment:
-        "Good headphones overall. The sound is great and the battery life is decent. However, they could be more comfortable for long use.",
-      createdAt: "2023-10-05T11:20:00Z",
-    },
-  ];
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="text-center p-8">
+        <h1 className="text-2xl font-bold mb-4">Loading...</h1>
+        <p>Please wait while we fetch the product details.</p>
+      </div>
+    );
+  }
 
   const discount =
     product.priceAfterDiscount && product.priceAfterDiscount > 0
@@ -154,12 +94,8 @@ export default function Product({ id }: { id: string }) {
         )
       : 0;
 
-  const handleDeleteReview = () => {
-    // deleteReview(review.id);
-    toast.success("Review deleted", {
-      description: "Your review has been successfully deleted.",
-      duration: 3000,
-    });
+  const handleDeleteReview = (reviewId: number) => {
+    deleteReviewMutation.mutate(reviewId);
   };
   const productImages = [product.imageCover, ...product.images];
 
@@ -177,6 +113,22 @@ export default function Product({ id }: { id: string }) {
         console.error("Failed to copy URL:", err);
       });
   };
+
+  // Handle quantity changes with stock validation
+  const handleQuantityDecrease = () => {
+    setQuantity(Math.max(1, quantity - 1));
+  };
+  const handleQuantityIncrease = () => {
+    const maxQuantity = product.quantity || 0;
+    if (quantity < maxQuantity) {
+      setQuantity(quantity + 1);
+    }
+  };
+
+  const isOutOfStock =
+    product.status === ProductStatus.OUT_OF_STOCK ||
+    (product.quantity || 0) <= 0;
+  const maxQuantityReached = quantity >= (product.quantity || 0);
 
   return (
     <div>
@@ -241,7 +193,7 @@ export default function Product({ id }: { id: string }) {
                   />
                 ))}
               </div>
-              <span className="text-sm text-gray-600 dark:text-gray-400">
+              <span className="text-sm text-muted-foreground">
                 {Number(product.ratingsAverage) > 0
                   ? product.ratingsAverage
                   : 0.0}{" "}
@@ -250,7 +202,7 @@ export default function Product({ id }: { id: string }) {
               </span>
             </div>
             {product.brand && (
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 Brand:{" "}
                 <span className="font-medium text-gray-800 dark:text-gray-200 capitalize">
                   {product.brand.name}
@@ -266,7 +218,7 @@ export default function Product({ id }: { id: string }) {
                 <span className="text-3xl font-bold">
                   ${product.priceAfterDiscount}
                 </span>
-                <span className="text-xl text-gray-600 dark:text-gray-400 line-through">
+                <span className="text-xl text-muted-foreground line-through">
                   ${product.price}
                 </span>
                 <Badge className="bg-red-500">{discount}% OFF</Badge>
@@ -287,7 +239,7 @@ export default function Product({ id }: { id: string }) {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                onClick={handleQuantityDecrease}
                 disabled={quantity <= 1}
               >
                 <Minus className="w-4 h-4" />
@@ -296,27 +248,42 @@ export default function Product({ id }: { id: string }) {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setQuantity(quantity + 1)}
+                onClick={handleQuantityIncrease}
+                disabled={isOutOfStock || maxQuantityReached}
               >
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              {product.status == ProductStatus.OUT_OF_STOCK
-                ? "Out of Stock"
-                : product.status}
-            </span>
+            <div className="flex flex-col">
+              <span className="text-sm  text-muted-foreground">
+                {isOutOfStock ? (
+                  "Out of Stock"
+                ) : (
+                  <p>
+                    <span className="text-foreground font-semibold">
+                      {product.quantity || 0}
+                    </span>
+                    <span> in stock</span>
+                  </p>
+                )}
+              </span>
+              {maxQuantityReached && !isOutOfStock && (
+                <span className="text-xs text-orange-500">
+                  Maximum quantity reached
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Actions */}
           <div className="flex space-x-4">
             <Button
               // onClick={handleAddToCart}
-              // disabled={!product.inStock}
+              disabled={isOutOfStock}
               className="flex-1"
             >
-              <ShoppingCart className="w-5 h-5 mr-2" />
-              Add to Cart
+              <ShoppingCart className="size-5 mr-2" />
+              {isOutOfStock ? "Out of Stock" : "Add to Cart"}
             </Button>
 
             <WishlistButton type="ProductPage" product={product} />
@@ -345,7 +312,7 @@ export default function Product({ id }: { id: string }) {
               </div>
               <div>
                 <h4 className="font-medium">Free Shipping</h4>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-muted-foreground dark:text-gray-400">
                   On orders over $50
                 </p>
               </div>
@@ -356,7 +323,7 @@ export default function Product({ id }: { id: string }) {
               </div>
               <div>
                 <h4 className="font-medium">Easy Returns</h4>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-muted-foreground dark:text-gray-400">
                   30 day return policy
                 </p>
               </div>
@@ -367,7 +334,7 @@ export default function Product({ id }: { id: string }) {
               </div>
               <div>
                 <h4 className="font-medium">Secure Checkout</h4>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-muted-foreground dark:text-gray-400">
                   SSL / Secure checkout
                 </p>
               </div>
@@ -395,7 +362,7 @@ export default function Product({ id }: { id: string }) {
               value="reviews"
               className="dark:data-[state=active]:bg-primary/90 data-[state=active]:bg-primary/90 py-2 px-6 text-md hover:bg-primary/50 hover:text-white data-[state=active]:text-white cursor-pointer"
             >
-              Reviews ({productReviews.length})
+              Reviews ({totalCount})
             </TabsTrigger>
           </TabsList>
           <TabsContent value="description" className="mt-6">
@@ -450,7 +417,7 @@ export default function Product({ id }: { id: string }) {
                     </span>
                     <span>
                       {product.weight && product.weight > 0
-                        ? product.warranty
+                        ? product.weight
                         : "0.00"}{" "}
                       kg
                     </span>
@@ -484,141 +451,188 @@ export default function Product({ id }: { id: string }) {
               </div>
             </div>
           </TabsContent>
+
           <TabsContent value="reviews" className="mt-6">
-            <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="bg-primary/10 dark:bg-primary/40  rounded-full p-4">
-                  <span className="text-2xl font-bold">
-                    {productReviews.length > 0
-                      ? (
-                          productReviews.reduce((sum, r) => sum + r.rating, 0) /
-                          productReviews.length
-                        ).toFixed(1)
-                      : product.ratingsAverage}
-                  </span>
-                </div>
-                <div>
-                  <div className="flex">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-5 w-5 ${
-                          i < Math.floor(Number(product.ratingsAverage))
-                            ? "text-yellow-400 fill-yellow-400"
-                            : "text-gray-300"
-                        }`}
-                      />
-                    ))}
+            {loadingReviews ? (
+              <>Loading...</>
+            ) : (
+              <div className="space-y-6">
+                <div className="flex items-center gap-4">
+                  <div className="bg-primary/10 dark:bg-primary/40  rounded-full p-4">
+                    <span className="text-2xl font-bold">
+                      {reviews.length > 0
+                        ? (
+                            reviews.reduce((sum, r) => sum + r.rating, 0) /
+                            reviews.length
+                          ).toFixed(1)
+                        : product.ratingsAverage}
+                    </span>
                   </div>
-                  {/* <p className="text-sm text-gray-500 mt-1">
-                    Based on customer reviews
-                  </p> */}
-                  <p className="text-sm text-gray-500 mt-1">
-                    Based on {productReviews.length || "customer"} reviews
-                  </p>
-                </div>
-
-                <ReviewForm productName={product.name}>
-                  <Button className="ml-auto">Write a Review</Button>
-                </ReviewForm>
-              </div>
-
-              <div className="space-y-4">
-                {productReviews.length > 0 ? (
-                  productReviews.map((review) => (
-                    <div key={review.id} className="border-t pt-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium">
-                              {review.user.name}
-                            </span>
-                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                              {new Date(review.createdAt).toLocaleDateString()}
-                            </span>
-                          </div>
-                          <div className="flex mb-2">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-4 w-4 ${
-                                  i < review.rating
-                                    ? "text-yellow-400 fill-yellow-400"
-                                    : "text-gray-300"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Review Actions */}
-                        <div className="flex items-center gap-2">
-                          <ReviewForm
-                            productName={product.name}
-                            // existingReview={review}
-                            mode="edit"
-                          >
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="border"
-                            >
-                              <Edit className="h-4 w-4 mr-1" />
-                              Edit
-                            </Button>
-                          </ReviewForm>
-
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-red-600 hover:text-red-700 border"
-                              >
-                                <Trash2 className="h-4 w-4 mr-1" />
-                                Delete
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                  Delete Review
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Are you sure you want to delete this review?
-                                  This action cannot be undone.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={handleDeleteReview}
-                                  className="bg-red-600 hover:bg-red-700"
-                                >
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      </div>
-                      <p className="text-gray-700 dark:text-gray-300">
-                        {review.comment}
-                      </p>
+                  <div>
+                    <div className="flex">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`h-5 w-5 ${
+                            i <
+                            Math.floor(
+                              Number(
+                                reviews.reduce((sum, r) => sum + r.rating, 0) /
+                                  reviews.length
+                              )
+                            )
+                              ? "text-yellow-400 fill-yellow-400"
+                              : "text-gray-300"
+                          }`}
+                        />
+                      ))}
                     </div>
-                  ))
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-gray-500 mb-4">
-                      No reviews yet. Be the first to review this product!
+
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Based on {totalCount || "customer"} reviews
                     </p>
-                    <ReviewForm productName={product.name}>
-                      <Button>Write the First Review</Button>
-                    </ReviewForm>
                   </div>
-                )}
+
+                  {user ? (
+                    <ReviewForm
+                      productName={product.name}
+                      productId={product.id}
+                    >
+                      <Button className="ml-auto">Write a Review</Button>
+                    </ReviewForm>
+                  ) : (
+                    <Button className="ml-auto" disabled>
+                      Write a Review
+                    </Button>
+                  )}
+                </div>
+
+                <div className="space-y-4">
+                  {reviews.length > 0 ? (
+                    reviews.map((review) => (
+                      <div key={review.id} className="border-t pt-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-medium">
+                                {review.user.name}
+                              </span>
+                              <span className="text-sm text-muted-foreground">
+                                {new Date(review.createdAt).toLocaleString()}
+                              </span>
+                            </div>
+                            <div className="flex mb-2">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`size-4 ${
+                                    i < review.rating
+                                      ? "text-yellow-400 fill-yellow-400"
+                                      : "text-gray-300"
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Review Actions - Only show if user is logged in and owns the review */}
+                          {user && user.id === review.user.id && (
+                            <div className="flex items-center gap-2">
+                              <ReviewForm
+                                productId={product.id}
+                                productName={product.name}
+                                existingReview={review}
+                                mode="edit"
+                              >
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="border"
+                                >
+                                  <Edit className="h-4 w-4 mr-1" />
+                                  Edit
+                                </Button>
+                              </ReviewForm>
+
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-red-600 hover:text-red-700 border"
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-1" />
+                                    Delete
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                      Delete Review
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to delete this
+                                      review? This action cannot be undone.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>
+                                      Cancel
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() =>
+                                        handleDeleteReview(review.id)
+                                      }
+                                      className="bg-red-600 hover:bg-red-700"
+                                    >
+                                      Delete
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-gray-700 dark:text-gray-300">
+                          {review.comment}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground mb-4">
+                        No reviews yet. Be the first to review this product!
+                      </p>
+                      {user ? (
+                        <ReviewForm
+                          productName={product.name}
+                          productId={product.id}
+                        >
+                          <Button>Write the First Review</Button>
+                        </ReviewForm>
+                      ) : (
+                        <p className="text-sm text-gray-400">
+                          Please log in to write a review.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  {hasNextPage && (
+                    <div className="text-center mt-8">
+                      <Button
+                        onClick={() => fetchNextPage()}
+                        disabled={isFetchingNextPage}
+                        variant="outline"
+                        size="lg"
+                        className="dark:border-primary dark:text-primary text-lg"
+                      >
+                        {isFetchingNextPage ? "Loading..." : "Load More"}
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>

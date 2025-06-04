@@ -1,7 +1,6 @@
 "use client";
 import { Star } from "lucide-react";
 import React from "react";
-import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -26,8 +25,10 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ReviewSchema } from "@/schema";
 import { IReview } from "@/types/review";
+import { useCreateReview, useUpdateReview } from "@/hooks/useReview";
 
 interface ReviewFormProps {
+  productId: number;
   productName: string;
   children: React.ReactNode;
   existingReview?: IReview;
@@ -37,6 +38,7 @@ interface ReviewFormProps {
 type ReviewFormValues = z.infer<typeof ReviewSchema>;
 
 export default function ReviewForm({
+  productId,
   productName,
   children,
   existingReview,
@@ -64,38 +66,30 @@ export default function ReviewForm({
     }
   }, [existingReview, form]);
 
+  const createReviewMutation = useCreateReview();
+  const updateReviewMutation = useUpdateReview();
+  // updateReviewMutation.mutate({ productId: 1, rating: 5, comment: "Updated comment" });
+
   const onSubmit = (data: ReviewFormValues) => {
     const reviewData = {
       ...data,
       rating: selectedRating,
     };
-
-    console.log("Review submitted:", reviewData);
-
-    toast.success("Review submitted!", {
-      description:
-        "Thank you for your feedback. Your review has been submitted for approval.",
-      duration: 3000,
-    });
+    if (mode === "create") {
+      createReviewMutation.mutate({ productId, data: reviewData });
+    }
 
     if (mode === "edit" && existingReview) {
-      // updateReview(existingReview.id, reviewData);
-      toast.success("Review updated!", {
-        description: "Your review has been successfully updated.",
-        duration: 3000,
-      });
-    } else {
-      // addReview(reviewData);
-      toast("Review submitted!", {
-        description:
-          "Thank you for your feedback. Your review has been submitted.",
-        duration: 3000,
+      updateReviewMutation.mutate({
+        reviewId: existingReview?.id,
+        data: reviewData,
+        productId,
       });
     }
 
     form.reset();
     setSelectedRating(0);
-    setOpen(false);
+    // setOpen(false);
   };
   const StarRating = () => {
     return (
@@ -130,9 +124,17 @@ export default function ReviewForm({
           </DialogTitle>
 
           <DialogDescription>
-            {mode === "edit"
-              ? `Update your review for ${productName}`
-              : `Share your experience with ${productName}`}
+            {mode === "edit" ? (
+              <>
+                <span>Update your review for </span>
+                <span className="text-primary font-medium">{productName}</span>
+              </>
+            ) : (
+              <>
+                <span>Share your experience with </span>
+                <span className="text-primary font-medium">{productName}</span>
+              </>
+            )}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

@@ -36,3 +36,27 @@ export interface IProduct {
   brand: IBrand | null;
   // reviews: Review[];
 }
+
+export interface ProductsQueryParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  categories?: string[];
+  subcategories?: string[];
+  brands?: string[];
+  price_gt?: number;
+  price_gte?: number;
+  price_lt?: number;
+  price_lte?: number;
+  sortBy?: "price" | "ratingsAverage" | "createdAt";
+  sortOrder?: "ASC" | "DESC";
+}
+export interface ProductsResponse {
+  data: IProduct[];
+  meta: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    last_page: number;
+  };
+}

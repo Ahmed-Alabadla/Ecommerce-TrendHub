@@ -41,8 +41,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <Link href={`/products/${product.id}`}>
         <div className="relative overflow-hidden">
           <Image
-            src={product.imageCover || ""}
-            alt={product.name || "Product "}
+            src={product.imageCover || "/product.png"}
+            alt={product.name || "Product"}
             className="w-full h-64 object-cover object-center transition-transform duration-300 group-hover:scale-110"
             width={256}
             height={256}
@@ -77,7 +77,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             {product.brand.name}
           </div>
         )}
-        <Link href={`/product/${product.id}`}>
+        <Link href={`/products/${product.id}`}>
           <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100 mb-2 line-clamp-2 hover:text-primary dark:hover:text-primary transition-colors max-w-xs truncate">
             {product.name}
           </h3>
@@ -97,7 +97,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             ))}
           </div>
           <span className="text-sm text-muted-foreground ml-2">
-            {Number(product.ratingsAverage) > 0 ? product.ratingsAverage : 0.0}{" "}
+            {Number(product.ratingsAverage) > 0
+              ? product.ratingsAverage
+              : "0.00"}{" "}
             ({product.ratingsQuantity > 0 ? product.ratingsQuantity : 0})
           </span>
         </div>

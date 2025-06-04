@@ -2,6 +2,7 @@
 import Loading from "@/app/loading";
 import { usePasswordStrength } from "@/hooks/use-password-strength";
 import {
+  PROFILE_QUERY_KEY,
   useChangePassword,
   useDeleteProfile,
   useProfile,
@@ -56,6 +57,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import { logout } from "@/actions/auth";
+import { queryClient } from "@/lib/react-query/client";
 
 type ProfileFormValues = z.infer<typeof ProfileSchema>;
 type ChangePasswordFormValues = z.infer<typeof ChangePasswordSchema>;
@@ -100,6 +102,8 @@ export default function Profile() {
   // Delete profile
   const handleDeleteProfile = async () => {
     deleteProfile.mutate();
+    // Clear only the profile cache when logging out
+    queryClient.removeQueries({ queryKey: PROFILE_QUERY_KEY });
     await logout().then(() => {
       toast.success("Logout successful!", {
         description: "You have been logged out successfully.",

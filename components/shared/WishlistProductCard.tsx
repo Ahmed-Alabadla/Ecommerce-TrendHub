@@ -35,14 +35,14 @@ export default function WishlistProductCard({
   return (
     <div className="bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden shadow border dark:border-primary dark:shadow-primary">
       <div className="flex flex-col sm:flex-row">
-        <div className="w-full sm:w-1/3 lg:w-1/4">
+        <div className="w-full sm:w-1/4 lg:w-1/6">
           <Link href={`/products/${product.id}`} className="block h-full">
             <Image
-              src={product.imageCover}
+              src={product.imageCover || "/product.png"}
               alt={product.name}
-              className="w-full h-40 sm:h-full object-cover object-center"
-              width={160}
-              height={160}
+              className="w-full h-64 sm:h-full object-cover object-center"
+              width={256}
+              height={256}
             />
           </Link>
         </div>

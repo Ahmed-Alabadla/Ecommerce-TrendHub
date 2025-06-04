@@ -8,18 +8,21 @@ import {
 import { ChangePasswordDto, UpdateProfileDto } from "@/types/user";
 import { queryClient } from "@/lib/react-query/client";
 import { toast } from "sonner";
+import { getCookie } from "cookies-next/client";
 
 // Query key constants
 export const PROFILE_QUERY_KEY = ["profile"] as const;
 
 // Get profile hook
 export const useProfile = () => {
+  const token = getCookie("access_token");
   return useQuery({
     queryKey: PROFILE_QUERY_KEY,
     queryFn: apiProfile,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
     retry: 1,
+    enabled: !!token,
   });
 };
 

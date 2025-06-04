@@ -1,16 +1,33 @@
-import { refreshAccessToken } from "@/actions/auth";
-import { ChangePasswordDto, IUser, UpdateProfileDto } from "@/types/user";
-import { getCookie } from "cookies-next/client";
+import {
+  IReview,
+  IReviewForm,
+  ReviewsQueryParams,
+  ReviewsResponse,
+} from "@/types/review";
 import { getAccessToken } from "./getToken";
+import { refreshAccessToken } from "@/actions/auth";
+import { getCookie } from "cookies-next/client";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export const apiProfile = async (): Promise<IUser> => {
-  const token = await getAccessToken();
+export const apiReviews = async (
+  params?: ReviewsQueryParams
+): Promise<ReviewsResponse> => {
+  const searchParams = new URLSearchParams();
 
-  const res = await fetch(`${API_URL}/users/profile`, {
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        searchParams.append(key, value.toString());
+      }
+    });
+  }
+
+  const queryString = searchParams.toString();
+  const url = `${API_URL}/reviews${queryString ? `?${queryString}` : ""}`;
+  const res = await fetch(url, {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
       "Content-Type": "application/json",
     },
     cache: "no-cache",
@@ -18,6 +35,38 @@ export const apiProfile = async (): Promise<IUser> => {
 
   if (!res.ok) {
     const err = await res.json();
+
+    const message =
+      typeof err.message === "object" ? err.message[0] : err.message;
+    throw new Error(message);
+  }
+
+  const response = await res.json();
+  return response;
+};
+
+export const apiCreateReview = async (
+  productId: number,
+  values: IReviewForm
+): Promise<IReview> => {
+  const token = await getAccessToken();
+
+  const url = `${API_URL}/reviews/${productId}`;
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(values),
+    cache: "no-cache",
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+
     if (res.status === 401) {
       // Token might be expired, try to refresh and retry
       const refreshResult = await refreshAccessToken();
@@ -25,11 +74,14 @@ export const apiProfile = async (): Promise<IUser> => {
         const newToken = getCookie("access_token");
         if (newToken) {
           // Retry the request with new token
-          const retryRes = await fetch(`${API_URL}/users/profile`, {
+          const retryRes = await fetch(url, {
+            method: "POST",
             headers: {
-              Authorization: `Bearer ${newToken}`,
+              Accept: "application/json",
               "Content-Type": "application/json",
+              Authorization: `Bearer ${newToken}`,
             },
+            body: JSON.stringify(values),
             cache: "no-cache",
           });
 
@@ -39,91 +91,33 @@ export const apiProfile = async (): Promise<IUser> => {
         }
       }
     }
+
     const message =
       typeof err.message === "object" ? err.message[0] : err.message;
     throw new Error(message);
   }
-  const response = await res.json();
 
+  const response = await res.json();
   return response;
 };
 
-export const apiUpdateProfile = async (
-  data: UpdateProfileDto
-): Promise<IUser> => {
+export const apiUpdateReview = async (
+  reviewId: number,
+  values: Partial<IReviewForm>
+): Promise<IReview> => {
   const token = await getAccessToken();
 
-  const formData = new FormData();
-  const { name, phone, avatar, address, birth_date, gender } = data;
+  const url = `${API_URL}/reviews/${reviewId}`;
 
-  if (name) formData.append("name", name);
-  if (phone) formData.append("phone", phone);
-  if (avatar) formData.append("avatar", avatar);
-  if (address) formData.append("address", address);
-  if (gender) formData.append("gender", gender);
-
-  if (birth_date) {
-    const date = new Date(birth_date);
-    // date.setDate(date.getDate() + 1); // Add one day
-    const formattedExpireDate = date.toLocaleString();
-    formData.append("birth_date", formattedExpireDate);
-  }
-
-  const res = await fetch(`${API_URL}/users/profile`, {
+  const res = await fetch(url, {
     method: "PATCH",
     headers: {
-      Authorization: `Bearer ${token}`,
       Accept: "application/json",
-      // "Content-Type": "application/json",
-    },
-    body: formData,
-  });
-
-  if (!res.ok) {
-    const err = await res.json();
-    if (res.status === 401) {
-      // Token might be expired, try to refresh and retry
-      const refreshResult = await refreshAccessToken();
-      if (refreshResult.success) {
-        const newToken = getCookie("access_token");
-        if (newToken) {
-          // Retry the request with new token
-          const retryRes = await fetch(`${API_URL}/users/profile`, {
-            method: "PATCH",
-            headers: {
-              Authorization: `Bearer ${newToken}`,
-              Accept: "application/json",
-              // "Content-Type": "application/json",
-            },
-            body: formData,
-          });
-
-          if (retryRes.ok) {
-            return await retryRes.json();
-          }
-        }
-      }
-    }
-    const message =
-      typeof err.message === "object" ? err.message[0] : err.message;
-    throw new Error(message);
-  }
-
-  const response = await res.json();
-
-  return response;
-};
-
-export const apiChangePassword = async (data: ChangePasswordDto) => {
-  const token = await getAccessToken();
-
-  const res = await fetch(`${API_URL}/auth/change-password`, {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(values),
+    cache: "no-cache",
   });
 
   if (!res.ok) {
@@ -136,13 +130,15 @@ export const apiChangePassword = async (data: ChangePasswordDto) => {
         const newToken = getCookie("access_token");
         if (newToken) {
           // Retry the request with new token
-          const retryRes = await fetch(`${API_URL}/auth/change-password`, {
+          const retryRes = await fetch(url, {
             method: "PATCH",
             headers: {
-              Authorization: `Bearer ${newToken}`,
+              Accept: "application/json",
               "Content-Type": "application/json",
+              Authorization: `Bearer ${newToken}`,
             },
-            body: JSON.stringify(data),
+            body: JSON.stringify(values),
+            cache: "no-cache",
           });
 
           if (retryRes.ok) {
@@ -158,14 +154,14 @@ export const apiChangePassword = async (data: ChangePasswordDto) => {
   }
 
   const response = await res.json();
-
   return response;
 };
 
-export const apiDeleteProfile = async () => {
+export const apiDeleteReview = async (reviewId: number) => {
   const token = await getAccessToken();
+  const url = `${API_URL}/reviews/${reviewId}`;
 
-  const res = await fetch(`${API_URL}/users/profile`, {
+  const res = await fetch(url, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -183,10 +179,10 @@ export const apiDeleteProfile = async () => {
         const newToken = getCookie("access_token");
         if (newToken) {
           // Retry the request with new token
-          const retryRes = await fetch(`${API_URL}/users/profile`, {
+          const retryRes = await fetch(url, {
             method: "DELETE",
             headers: {
-              Authorization: `Bearer ${newToken}`,
+              Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
             cache: "no-cache",
