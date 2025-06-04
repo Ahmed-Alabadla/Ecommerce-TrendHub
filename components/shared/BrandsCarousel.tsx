@@ -1,91 +1,70 @@
+"use client";
+import { useBrands } from "@/hooks/useBrand";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-
-export const brands = [
-  {
-    id: "apple",
-    name: "Apple",
-    logo: "/brand-logos/apple.png",
-    categories: ["electronics"],
-  },
-  {
-    id: "samsung",
-    name: "Samsung",
-    logo: "/brand-logos/samsung.png",
-    categories: ["electronics"],
-  },
-  {
-    id: "nike",
-    name: "Nike",
-    logo: "/brand-logos/nike.png",
-    categories: ["clothing", "shoes"],
-  },
-  {
-    id: "adidas",
-    name: "Adidas",
-    logo: "/brand-logos/adidas.png",
-    categories: ["clothing", "shoes"],
-  },
-  {
-    id: "zara",
-    name: "Zara",
-    logo: "/brand-logos/zara.png",
-    categories: ["clothing"],
-  },
-  {
-    id: "h&m",
-    name: "H&M",
-    logo: "/brand-logos/h&m.png",
-    categories: ["clothing"],
-  },
-  {
-    id: "rolex",
-    name: "Rolex",
-    logo: "/brand-logos/rolex.png",
-    categories: ["accessories"],
-  },
-  {
-    id: "dell",
-    name: "Dell",
-    logo: "/brand-logos/dell.png",
-    categories: ["electronics"],
-  },
-  {
-    id: "sony",
-    name: "Sony",
-    logo: "/brand-logos/sony.png",
-    categories: ["electronics"],
-  },
-  {
-    id: "puma",
-    name: "Puma",
-    logo: "/brand-logos/puma.png",
-    categories: ["clothing", "shoes"],
-  },
-];
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
+import { Tag } from "lucide-react";
 
 export default function BrandsCarousel() {
+  const { data: brands, isPending, error } = useBrands();
+
+  if (isPending) {
+    return (
+      <section className="py-10">
+        <div>
+          <h2 className="text-2xl font-bold text-center mb-8">
+            Popular Brands
+          </h2>
+
+          <div className="flex items-center justify-center flex-wrap gap-8 md:gap-12">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className="rounded-lg p-4 shadow-sm">
+                <Skeleton className="h-20 w-20 md:h-24 md:w-24" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    toast.error("Failed to load brands. Please try again later.", {
+      description: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+
   return (
     <section className="py-10">
       <div className="container mx-auto px-4">
         <h2 className="text-2xl font-bold text-center mb-8">Popular Brands</h2>
 
         <div className="flex items-center justify-center flex-wrap gap-8 md:gap-12">
-          {brands.map((brand) => (
+          {brands?.map((brand) => (
             <Link
               key={brand.id}
-              href={`/brand/${brand.id}`}
+              href={`/products?brand=${brand.slug}`}
               className="group dark:shadow-primary rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
             >
               <div className="h-20 w-20 md:h-24 md:w-24 flex items-center justify-center">
-                <Image
-                  src={brand.logo || "/placeholder.svg"}
-                  alt={brand.name}
-                  width={80}
-                  height={80}
-                  className="max-h-full max-w-full object-contain opacity-70 group-hover:opacity-100 transition-opacity"
-                />
+                {brand.image ? (
+                  <Image
+                    src={brand.image}
+                    alt={brand.name}
+                    width={96}
+                    height={96}
+                    className="object-contain"
+                  />
+                ) : (
+                  <p className="flex flex-col items-center  gap-2">
+                    <Tag className="h-5 w-5 text-muted-foreground" />
+                    <span className="text-xl text-primary font-semibold">
+                      {brand.name}
+                    </span>
+                  </p>
+                )}
               </div>
             </Link>
           ))}

@@ -84,13 +84,14 @@ export default function Categories() {
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {category.subCategories.length > 0 ? (
-                      category.subCategories.map((sub, index) => (
-                        <span
-                          key={index}
+                      category.subCategories.map((sub) => (
+                        <Link
+                          href={`/products?subcategory=${sub.slug}`}
+                          key={sub.id}
                           className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded-full"
                         >
                           {sub.name}
-                        </span>
+                        </Link>
                       ))
                     ) : (
                       <span className="text-sm text-muted-foreground">

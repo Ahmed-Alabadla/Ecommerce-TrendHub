@@ -23,7 +23,7 @@ export const apiCategories = async (): Promise<ICategory[]> => {
   return response;
 };
 
-export const apiCategory = async (slug: string) => {
+export const apiCategory = async (slug: string): Promise<ICategory> => {
   const res = await fetch(`${API_URL}/categories/${slug}`, {
     headers: {
       Accept: "application/json",

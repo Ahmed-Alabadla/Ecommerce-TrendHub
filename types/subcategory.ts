@@ -5,6 +5,6 @@ export interface ISubcategory {
   name: string;
   slug: string;
   category: ICategory;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
