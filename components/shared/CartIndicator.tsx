@@ -2,9 +2,11 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
+import { useCart } from "@/hooks/useCart";
 
 export default function CartIndicator() {
-  const cartItems = [3, 4];
+  const { data: cart } = useCart();
+  const cartItems = cart?.cartItems || [];
 
   return (
     <Button

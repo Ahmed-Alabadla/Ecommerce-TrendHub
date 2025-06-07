@@ -1,6 +1,8 @@
+"use client";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { redirect } from "next/navigation";
 
 export default function Hero() {
   return (
@@ -24,6 +26,7 @@ export default function Hero() {
               <Button
                 size="lg"
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-all duration-300 transform hover:scale-105"
+                onClick={() => redirect("/products")}
               >
                 Shop Now
               </Button>
@@ -31,6 +34,7 @@ export default function Hero() {
                 variant="outline"
                 size="lg"
                 className="border-2 border-gray-300 hover:border-primary dark:hover:border-primary dark:hover:text-primary px-8 py-3 rounded-lg text-lg font-semibold transition-all duration-300  dark:text-white dark:bg-black dark:hover:bg-black hover:text-primary"
+                onClick={() => redirect("/categories")}
               >
                 View Categories
               </Button>

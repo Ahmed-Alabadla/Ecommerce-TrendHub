@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useProducts } from "@/hooks/useProduct";
 import { toast } from "sonner";
 import CardSkeleton from "./CardSkeleton";
+import { redirect } from "next/navigation";
 
 export default function FeaturedProducts() {
   const {
@@ -77,6 +78,7 @@ export default function FeaturedProducts() {
           <Button
             size="lg"
             className="px-8 py-3 rounded-lg text-lg font-semibold transition-all duration-300"
+            onClick={() => redirect("/products")}
           >
             View All Products
           </Button>

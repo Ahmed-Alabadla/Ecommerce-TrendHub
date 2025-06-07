@@ -7,27 +7,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { IProduct } from "@/types/product";
 import WishlistButton from "./WishlistButton";
+import { useAddToCart } from "@/hooks/useCart";
 
 interface ProductCardProps {
   product: IProduct;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  // const { addItem } = useCart();
+  const addToCart = useAddToCart();
 
-  // const handleAddToCart = () => {
-  //   addItem({
-  //     id: product.id,
-  //     name: product.name,
-  //     price: product.price,
-  //     image: product.image,
-  //     quantity: 1,
-  //   });
-  //   toast({
-  //     title: "Added to Cart",
-  //     description: `${product.name} has been added to your cart.`,
-  //   });
-  // };
+  const handleAddToCart = () => {
+    addToCart.mutate({
+      productId: product.id,
+    });
+  };
 
   const discount =
     product.priceAfterDiscount && product.priceAfterDiscount > 0
@@ -63,7 +56,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           className="w-full bg-black/80 hover:bg-black dark:bg-primary/80 dark:hover:bg-primary text-white backdrop-blur-sm"
           onClick={(e) => {
             e.stopPropagation();
-            // handleAddToCart();
+            handleAddToCart();
           }}
         >
           <ShoppingCart className="w-4 h-4 mr-2" />

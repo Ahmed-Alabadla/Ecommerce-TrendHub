@@ -6,17 +6,23 @@ import { useWishlist } from "@/hooks/useWishlist";
 import { toast } from "sonner";
 import WishlistProductCard from "@/components/shared/WishlistProductCard";
 import Link from "next/link";
+import { useAddToCart } from "@/hooks/useCart";
 
 const WishlistPage = () => {
   const { clearWishlist, wishlistItems } = useWishlist();
+
+  const addToCart = useAddToCart();
+
   const handleAddAllToCart = () => {
-    // items.forEach((item) => {
-    //   addItem(item.product, 1);
-    // });
+    wishlistItems.forEach((item) => {
+      addToCart.mutate({ productId: item.id });
+    });
 
     toast.success("Added to cart", {
       description: `${wishlistItems.length} items have been added to your cart`,
     });
+
+    clearWishlist();
   };
 
   const handleClearWishlist = () => {

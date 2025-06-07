@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Trash2 } from "lucide-react";
 import { useWishlist } from "@/hooks/useWishlist";
+import { useAddToCart } from "@/hooks/useCart";
 
 export default function WishlistProductCard({
   product,
@@ -13,14 +14,17 @@ export default function WishlistProductCard({
   product: IProduct;
 }) {
   const { removeFromWishlist } = useWishlist();
+  const addToCart = useAddToCart();
 
   const handleAddToCart = () => {
-    // addItem(product, 1);
+    addToCart.mutate({ productId: product.id });
 
     toast.success("Added to cart", {
       description: `${product.name} has been added to your cart.`,
       duration: 3000,
     });
+
+    removeFromWishlist(product.id);
   };
 
   const handleRemove = () => {
