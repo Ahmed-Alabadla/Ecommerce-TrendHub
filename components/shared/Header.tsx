@@ -14,9 +14,11 @@ import UserMenu from "./UserMenu";
 import WishlistIndicator from "./WishlistIndicator";
 import { usePathname } from "next/navigation";
 import CartIndicator from "./CartIndicator";
+import { getCookie } from "cookies-next/client";
 export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const pathname = usePathname();
+  const token = getCookie("access_token");
 
   return (
     <>
@@ -80,14 +82,16 @@ export default function Header() {
             >
               Categories
             </Link>
-            <Link
-              href="/orders"
-              className={`text-foreground hover:text-primary transition-colors font-medium ${
-                pathname === "/orders" && "text-primary"
-              }`}
-            >
-              My Orders
-            </Link>
+            {token && (
+              <Link
+                href="/orders"
+                className={`text-foreground hover:text-primary transition-colors font-medium ${
+                  pathname === "/orders" && "text-primary"
+                }`}
+              >
+                My Orders
+              </Link>
+            )}
           </nav>
         </div>
       </header>
