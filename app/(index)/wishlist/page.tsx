@@ -1,11 +1,11 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { ShoppingCart, Trash2, Heart } from "lucide-react";
 
-import { useWishlist } from "@/hooks/useWishlist";
+import { ShoppingCart, Trash2, Heart } from "lucide-react";
 import { toast } from "sonner";
 import WishlistProductCard from "@/components/shared/WishlistProductCard";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { useWishlist } from "@/hooks/useWishlist";
 import { useAddToCart } from "@/hooks/useCart";
 
 const WishlistPage = () => {
