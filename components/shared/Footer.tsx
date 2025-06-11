@@ -27,7 +27,7 @@ export default function Footer() {
             <h3 className="font-bold text-lg mb-4">My Account</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/account" className="hover:text-primary transition">
+                <Link href="/profile" className="hover:text-primary transition">
                   Account
                 </Link>
               </li>

@@ -1,85 +1,102 @@
+"use client";
 import React from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle2, CircleX, Truck } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
+import { useOrder } from "@/hooks/useOrder";
+import { toast } from "sonner";
+import { OrderStatus } from "@/types/order";
+import { Skeleton } from "../ui/skeleton";
 
 interface OrderDetailsProps {
   orderId: string;
 }
 
 export default function OrderDetails({ orderId }: OrderDetailsProps) {
-  console.log("order ", orderId);
+  const { data: order, isPending, error } = useOrder(orderId);
+  if (isPending) {
+    return (
+      <div className="space-y-8">
+        {/* Header skeleton */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <Skeleton className="h-8 w-48 mb-2" />
+            <Skeleton className="h-4 w-40" />
+          </div>
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-6 w-24" />
+            <Skeleton className="h-6 w-20" />
+          </div>
+        </div>
 
-  const order = {
-    id: 126,
-    orderNumber: "ORD-20250518-00000126",
-    taxPrice: "226.80",
-    shippingPrice: "108.00",
-    totalOrderPrice: "2494.78",
-    paymentMethodType: "cash",
-    isPaid: true,
-    paidAt: "2025-05-18",
-    isDelivered: true,
-    deliveredAt: "2025-05-18",
-    shippingAddress: {
-      street: "Salah ALDeen",
-      country: "PS",
-      city: "Gaza",
-      postalCode: 12345,
-    },
-    stripeCheckoutId: null,
-    status: "paid",
-    createdAt: "2025-05-18T14:44:28.142Z",
-    updatedAt: "2025-05-18T16:25:24.384Z",
-    user: {
-      id: 9,
-      name: "Sami",
-      email: "sami@gmail.com",
-      role: "customer",
-      isAccountVerified: true,
-      avatar: "",
-      birth_date: "2002-03-11",
-      phone: "+12025550123",
-      address: null,
-      isActive: true,
-      gender: "male",
-      createdAt: "2025-04-20T13:37:58.821Z",
-      updatedAt: "2025-04-21T13:56:54.900Z",
-    },
-    orderItems: [
-      {
-        id: 135,
-        quantity: 2,
-        createdAt: "2025-05-18T14:44:28.136Z",
-        updatedAt: "2025-05-18T14:44:28.142Z",
-        product: {
-          id: 23,
-          name: "iPhone 16 Pro Max ",
-          description: "this is iPhone 16 Pro Max ",
-          quantity: 88,
-          price: "1199.99",
-          priceAfterDiscount: "NaN",
-          imageCover:
-            "https://res.cloudinary.com/dquxld87w/image/upload/v1747566561/ecommerce/tvimr1x6o3fa7bxd0tod.jpg",
-          images: [
-            "https://res.cloudinary.com/dquxld87w/image/upload/v1747566562/ecommerce/tnqg50o8cea6nkll3vcn.jpg",
-            "https://res.cloudinary.com/dquxld87w/image/upload/v1747566562/ecommerce/rftzcdnm9glxryjiau1x.jpg",
-          ],
-          sold: 12,
-          ratingsAverage: "0.0",
-          ratingsQuantity: 0,
-          status: "Active",
-          warranty: null,
-          weight: "NaN",
-          dimensions: {},
-          createdAt: "2025-05-18T11:09:21.422Z",
-          updatedAt: "2025-05-18T16:25:24.376Z",
-        },
-      },
-    ],
-  };
+        {/* Order Summary skeleton */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Order Summary</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* Product items skeleton */}
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex gap-4">
+                  <Skeleton className="h-16 w-16 rounded" />
+                  <div className="flex-grow">
+                    <div className="flex justify-between mb-1">
+                      <Skeleton className="h-5 w-32" />
+                      <Skeleton className="h-5 w-16" />
+                    </div>
+                    <Skeleton className="h-4 w-24" />
+                  </div>
+                </div>
+              ))}
+              <Separator className="my-4" />
+              {/* Price details skeleton */}
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-4 w-12" />
+                </div>
+                <div className="flex justify-between">
+                  <Skeleton className="h-4 w-16" />
+                  <Skeleton className="h-4 w-12" />
+                </div>
+                <div className="flex justify-between">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-4 w-16" />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        {/* Shipping Information skeleton */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Shipping Information</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Skeleton className="h-5 w-16 mb-2" />
+                <Skeleton className="h-4 w-32 mb-1" />
+                <Skeleton className="h-4 w-40 mb-1" />
+                <Skeleton className="h-4 w-28" />
+              </div>
+              <div>
+                <Skeleton className="h-5 w-16 mb-2" />
+                <Skeleton className="h-4 w-48 mb-1" />
+                <Skeleton className="h-4 w-40" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+  if (error) {
+    toast.error(error.message);
+  }
 
   if (!order) {
     return (
@@ -92,9 +109,6 @@ export default function OrderDetails({ orderId }: OrderDetailsProps) {
       </Alert>
     );
   }
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
-  };
 
   const statusIcons = {
     pending: <AlertCircle className="h-4 w-4 text-yellow-500" />,
@@ -103,12 +117,6 @@ export default function OrderDetails({ orderId }: OrderDetailsProps) {
     cancelled: <CircleX className="h-4 w-4 text-red-500" />,
     delivered: <Truck className="h-4 w-4 text-purple-500" />,
   };
-  enum OrderStatus {
-    PENDING = "pending",
-    PAID = "paid",
-    FAILED = "failed",
-    CANCELLED = "cancelled",
-  }
 
   return (
     <div className="space-y-8">
@@ -118,7 +126,7 @@ export default function OrderDetails({ orderId }: OrderDetailsProps) {
             Order #{order.orderNumber}
           </h2>
           <p className="text-muted-foreground">
-            Placed on {formatDate(order.createdAt)}
+            Placed on {new Date(order.createdAt).toLocaleString()}
           </p>
         </div>
         <div className="flex items-center gap-4 justify-between">
@@ -144,7 +152,7 @@ export default function OrderDetails({ orderId }: OrderDetailsProps) {
               <div key={item.product.id} className="flex gap-4">
                 <div className="h-16 w-16 rounded overflow-hidden flex-shrink-0">
                   <Image
-                    src={item.product.imageCover}
+                    src={item.product.imageCover || "/product.png"}
                     alt={item.product.name}
                     className="h-full w-full object-cover"
                     width={64}

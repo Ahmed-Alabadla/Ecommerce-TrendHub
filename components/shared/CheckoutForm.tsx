@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { redirect } from "next/navigation";
 import { useState } from "react";
 import {
   Dialog,
@@ -24,6 +23,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Banknote, CreditCard } from "lucide-react";
+import {
+  ORDER_QUERY_KEY,
+  useCheckoutOrderCard,
+  useCheckoutOrderCash,
+} from "@/hooks/useOrder";
+import { queryClient } from "@/lib/react-query/client";
+import { CART_QUERY_KEY } from "@/hooks/useCart";
+import { redirect } from "next/navigation";
 
 type CheckoutFormType = z.infer<typeof ShippingAddressSchema>;
 type PaymentMethod = "cash" | "card";
@@ -58,17 +65,46 @@ export default function CheckoutForm({ totalPrice }: { totalPrice: number }) {
     setSelectedPaymentMethod(null);
   };
 
-  const handlePaymentSubmit = () => {
-    console.log("Order completed with:", {
-      shippingAddress: validShippingData,
-      paymentMethod: selectedPaymentMethod,
-      totalPrice,
-    });
+  const checkoutCard = useCheckoutOrderCard();
+  const checkoutCash = useCheckoutOrderCash();
 
-    // Close dialog and redirect
-    setShowPaymentDialog(false);
-    redirect("/orders/34"); // Replace with actual order ID or logic to get it
+  const handlePaymentSubmit = () => {
+    if (!validShippingData) return;
+
+    if (selectedPaymentMethod === "card") {
+      checkoutCard.mutate({
+        shippingAddress: {
+          ...validShippingData,
+          postalCode: Number(validShippingData.postalCode),
+        },
+      });
+    }
+    if (selectedPaymentMethod === "cash") {
+      checkoutCash.mutate({
+        shippingAddress: {
+          ...validShippingData,
+          postalCode: Number(validShippingData.postalCode),
+        },
+      });
+    }
+
+    if (checkoutCard.isSuccess || checkoutCash.isSuccess) {
+      // Close dialog and redirect
+      setShowPaymentDialog(false);
+    }
   };
+
+  if (checkoutCash.isSuccess) {
+    queryClient.resetQueries({ queryKey: CART_QUERY_KEY });
+    queryClient.resetQueries({ queryKey: ORDER_QUERY_KEY });
+    redirect(`orders/${checkoutCash.data.id}`);
+  }
+
+  if (checkoutCard.isSuccess) {
+    queryClient.resetQueries({ queryKey: CART_QUERY_KEY });
+    queryClient.resetQueries({ queryKey: ORDER_QUERY_KEY });
+    redirect(checkoutCard.data.session_url);
+  }
 
   return (
     <>
@@ -133,8 +169,13 @@ export default function CheckoutForm({ totalPrice }: { totalPrice: number }) {
           </div>
 
           <div className="pt-4 border-t">
-            <Button type="submit" className="w-full" size="lg">
-              Complete Order (${totalPrice.toFixed(2)})
+            <Button
+              type="submit"
+              className="w-full"
+              size="lg"
+              disabled={checkoutCard.isPending || checkoutCash.isPending}
+            >
+              Complete Order (${totalPrice})
             </Button>
           </div>
         </form>
@@ -147,8 +188,7 @@ export default function CheckoutForm({ totalPrice }: { totalPrice: number }) {
           <DialogHeader>
             <DialogTitle>Choose Payment Method</DialogTitle>
             <DialogDescription>
-              Select how you would like to pay for your order of $
-              {totalPrice.toFixed(2)}.
+              Select how you would like to pay for your order of ${totalPrice}.
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-4">
@@ -180,10 +220,16 @@ export default function CheckoutForm({ totalPrice }: { totalPrice: number }) {
             </Button>
             <Button
               onClick={handlePaymentSubmit}
-              disabled={!selectedPaymentMethod}
+              disabled={
+                !selectedPaymentMethod ||
+                checkoutCard.isPending ||
+                checkoutCash.isPending
+              }
               className="w-full sm:w-auto"
             >
-              Complete Order
+              {checkoutCard.isPending || checkoutCash.isPending
+                ? "Processing..."
+                : "Complete Order"}
             </Button>
           </DialogFooter>
         </DialogContent>

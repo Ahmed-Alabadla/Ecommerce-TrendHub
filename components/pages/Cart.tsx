@@ -163,7 +163,7 @@ export default function Cart() {
                           className="w-20 h-20 flex-shrink-0"
                         >
                           <Image
-                            src={product.imageCover}
+                            src={product.imageCover || "/product.png"}
                             alt={product.name}
                             width={80}
                             height={80}
@@ -254,7 +254,12 @@ export default function Cart() {
                 })}
               </div>
               {/* Shipping Address */}
-              <CheckoutForm totalPrice={3025} />
+              {cart?.totalPriceAfterDiscount &&
+              cart.totalPriceAfterDiscount > 0 ? (
+                <CheckoutForm totalPrice={cart.totalPriceAfterDiscount} />
+              ) : (
+                <CheckoutForm totalPrice={cart?.totalPrice || 0} />
+              )}
             </div>
           </div>
 
@@ -345,7 +350,7 @@ export default function Cart() {
                 ) : (
                   <div className="flex space-x-2">
                     <Input
-                      placeholder="Enter coupon code ex. (DISCOUNT10)"
+                      placeholder="Enter coupon code (e.g., DISCOUNT10)"
                       value={couponCode}
                       onChange={(e) => setCouponCode(e.target.value)}
                       className="flex-grow border rounded-md px-3 py-2 text-sm"

@@ -37,13 +37,17 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useProduct } from "@/hooks/useProduct";
+import { useProduct, useProducts } from "@/hooks/useProduct";
 import { useDeleteReview, useInfiniteReviews } from "@/hooks/useReview";
 import { useProfile } from "@/hooks/useProfile";
+import ProductGrid from "../shared/ProductGrid";
+import { Skeleton } from "../ui/skeleton";
+import { useAddToCart } from "@/hooks/useCart";
 
 export default function Product({ id }: { id: string }) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const addToCart = useAddToCart();
 
   // Fetch product data using useProduct hook
   const { data: product, isLoading, error } = useProduct(id);
@@ -60,6 +64,30 @@ export default function Product({ id }: { id: string }) {
   } = useInfiniteReviews({ limit: 10, productId: product?.id });
   const reviews = data?.pages.flatMap((page) => page.data) ?? [];
   const totalCount = data?.pages[0]?.meta.total ?? 0;
+
+  // ============ Related Products =============
+
+  const {
+    data: relatedProducts,
+    isPending: isRelatedProductsLoading,
+    error: relatedProductsError,
+  } = useProducts({
+    page: 1,
+    limit: 10,
+    categories: product?.category.id ? [product.category.id.toString()] : [],
+    subcategories:
+      product?.subCategory && product?.subCategory.id
+        ? [product.subCategory.id.toString()]
+        : [],
+    sortOrder: "DESC",
+  });
+
+  if (relatedProductsError) {
+    toast.error("Failed to load related products. Please try again later.", {
+      description: relatedProductsError.message,
+      duration: 3000,
+    });
+  }
 
   //  =============== user ================
   const { data: user } = useProfile();
@@ -278,7 +306,11 @@ export default function Product({ id }: { id: string }) {
           {/* Actions */}
           <div className="flex space-x-4">
             <Button
-              // onClick={handleAddToCart}
+              onClick={() => {
+                addToCart.mutate({
+                  productId: product.id,
+                });
+              }}
               disabled={isOutOfStock}
               className="flex-1"
             >
@@ -635,6 +667,39 @@ export default function Product({ id }: { id: string }) {
             )}
           </TabsContent>
         </Tabs>
+      </div>
+
+      {/* Related Products */}
+      <div className="mt-16">
+        {isRelatedProductsLoading ? (
+          <div className="space-y-6">
+            <div className="text-center space-y-2">
+              <Skeleton className="h-8 w-48 mx-auto" />
+              <Skeleton className="h-4 w-72 mx-auto" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="space-y-4 border rounded-lg p-4">
+                  <Skeleton className="aspect-square w-full rounded-md" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <div className="flex items-center justify-between">
+                      <Skeleton className="h-6 w-16" />
+                      <Skeleton className="h-8 w-8 rounded-full" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <ProductGrid
+            products={relatedProducts?.data || []}
+            title="You May Also Like"
+            subtitle="Similar products you might be interested in"
+          />
+        )}
       </div>
     </div>
   );
