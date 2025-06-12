@@ -204,7 +204,7 @@ export default function Profile() {
                     name="birth_date"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Birth Date</FormLabel>
+                        <FormLabel htmlFor="date">Birth Date</FormLabel>
                         <FormControl>
                           <DatePicker
                             selected={

@@ -1,5 +1,5 @@
 {
-  "name": "ecommerce-app",
+  "name": "trendhub-shop",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -57,6 +57,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.3.0",
+    "postcss": "^8.5.5",
     "serwist": "^9.0.13",
     "tailwindcss": "^4",
     "typescript": "^5"
