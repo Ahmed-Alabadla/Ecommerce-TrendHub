@@ -1,12 +1,12 @@
 // In Next.js, this file would be called: app/providers.tsx
 "use client";
 
-import { queryClient } from "@/lib/react-query/client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useState } from "react";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { localStoragePersister } from "@/lib/react-query/persister";
+import { queryClient } from "@/lib/react-query/client";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [client] = useState(() => queryClient);
