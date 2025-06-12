@@ -8,7 +8,6 @@ const categories = [
     name: "Electronics",
     image:
       "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400&h=300&fit=crop",
-    count: "2,340 items",
     gradient: "from-blue-500 to-cyan-500",
   },
   {
@@ -16,7 +15,6 @@ const categories = [
     name: "Fashion",
     image:
       "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop",
-    count: "5,680 items",
     gradient: "from-pink-500 to-rose-500",
   },
   {
@@ -24,15 +22,13 @@ const categories = [
     name: "Home & Garden",
     image:
       "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=300&fit=crop",
-    count: "1,240 items",
     gradient: "from-green-500 to-emerald-500",
   },
   {
     id: 4,
     name: "Sports",
     image:
-      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
-    count: "890 items",
+      "https://images.unsplash.com/photo-1517649763962-0c623066013b?w=400&h=300&fit=crop",
     gradient: "from-orange-500 to-red-500",
   },
 ];
@@ -70,7 +66,6 @@ export default function CategoriesSection() {
                 ></div>
                 <div className="absolute inset-0 flex flex-col justify-end p-6 text-white">
                   <h3 className="text-xl font-bold mb-1">{category.name}</h3>
-                  <p className="text-sm opacity-90">{category.count}</p>
                 </div>
               </div>
             </Card>
