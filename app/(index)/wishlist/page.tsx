@@ -5,8 +5,8 @@ import { toast } from "sonner";
 import WishlistProductCard from "@/components/shared/WishlistProductCard";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useWishlist } from "@/hooks/useWishlist";
-import { useAddToCart } from "@/hooks/useCart";
+import { useWishlist } from "../../../hooks/useWishlist";
+import { useAddToCart } from "../../../hooks/useCart";
 
 const WishlistPage = () => {
   const { clearWishlist, wishlistItems } = useWishlist();
