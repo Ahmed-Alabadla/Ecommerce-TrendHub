@@ -92,7 +92,7 @@ export default function CheckoutForm({ totalPrice }: { totalPrice: number }) {
         },
       });
       queryClient.invalidateQueries({ queryKey: ORDER_QUERY_KEY });
-      queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
+      queryClient.resetQueries({ queryKey: CART_QUERY_KEY });
     }
   };
 
@@ -101,7 +101,7 @@ export default function CheckoutForm({ totalPrice }: { totalPrice: number }) {
     setShowPaymentDialog(false);
     router.push(`/orders/${checkoutCash.data.id}`);
     queryClient.invalidateQueries({ queryKey: ORDER_QUERY_KEY });
-    queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
+    queryClient.resetQueries({ queryKey: CART_QUERY_KEY });
   }
 
   // Handle success for card payments - dialog will close, redirect handled in hook
@@ -113,7 +113,7 @@ export default function CheckoutForm({ totalPrice }: { totalPrice: number }) {
       router.push(`/orders/${checkoutCard.data.id}`);
     }
     queryClient.invalidateQueries({ queryKey: ORDER_QUERY_KEY });
-    queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
+    queryClient.resetQueries({ queryKey: CART_QUERY_KEY });
   }
 
   return (

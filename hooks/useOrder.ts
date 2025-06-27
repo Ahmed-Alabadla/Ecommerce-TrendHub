@@ -46,12 +46,18 @@ export const useCheckoutOrderCash = () => {
     mutationFn: (data: CheckoutOrderDto) => apiCheckoutOrder("cash", data),
     onSuccess: (response) => {
       // Invalidate orders and cart queries
-      queryClient.invalidateQueries({ queryKey: ORDER_QUERY_KEY });
-      queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
+      queryClient.resetQueries({ queryKey: ORDER_QUERY_KEY });
+      queryClient.resetQueries({ queryKey: CART_QUERY_KEY });
 
       toast.success("Order placed successfully!", {
         description: `Your order #${response.orderNumber} has been placed and will be delivered soon.`,
+        duration: 5000,
       });
+
+      // Redirect to Stripe checkout or payment page
+      setTimeout(() => {
+        window.location.href = `orders/${response.id}`;
+      }, 1000); // Small delay to show the toast
     },
     onError: (error) => {
       toast.error("Failed to place order", {
@@ -70,8 +76,8 @@ export const useCheckoutOrderCard = () => {
     mutationFn: (data: CheckoutOrderDto) => apiCheckoutOrder("card", data),
     onSuccess: (response) => {
       // Invalidate orders and cart queries
-      queryClient.invalidateQueries({ queryKey: ORDER_QUERY_KEY });
-      queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
+      queryClient.resetQueries({ queryKey: ORDER_QUERY_KEY });
+      queryClient.resetQueries({ queryKey: CART_QUERY_KEY });
 
       // For card payments, the response might contain a checkout URL
       if (response.session_url) {
