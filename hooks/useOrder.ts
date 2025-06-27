@@ -46,7 +46,7 @@ export const useCheckoutOrderCash = () => {
     mutationFn: (data: CheckoutOrderDto) => apiCheckoutOrder("cash", data),
     onSuccess: (response) => {
       // Invalidate orders and cart queries
-      queryClient.resetQueries({ queryKey: ORDER_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ORDER_QUERY_KEY });
       queryClient.resetQueries({ queryKey: CART_QUERY_KEY });
 
       toast.success("Order placed successfully!", {
@@ -76,7 +76,11 @@ export const useCheckoutOrderCard = () => {
     mutationFn: (data: CheckoutOrderDto) => apiCheckoutOrder("card", data),
     onSuccess: (response) => {
       // Invalidate orders and cart queries
-      queryClient.resetQueries({ queryKey: ORDER_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ORDER_QUERY_KEY });
+
+      // Remove cart queries completely to force fresh fetch
+      queryClient.removeQueries({ queryKey: CART_QUERY_KEY });
+      // Or reset specific cart queries
       queryClient.resetQueries({ queryKey: CART_QUERY_KEY });
 
       // For card payments, the response might contain a checkout URL
