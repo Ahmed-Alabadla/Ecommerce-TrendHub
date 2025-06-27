@@ -15,7 +15,12 @@ export default function Wishlist() {
 
   const handleAddAllToCart = () => {
     wishlistItems.forEach((item) => {
-      addToCart.mutate({ productId: item.id });
+      addToCart.mutate({
+        productId: item.id,
+        values: {
+          quantity: 1,
+        },
+      });
     });
 
     toast.success("Added to cart", {

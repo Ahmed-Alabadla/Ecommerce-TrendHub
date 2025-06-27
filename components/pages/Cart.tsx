@@ -203,7 +203,10 @@ export default function Cart() {
                                   addToCart.mutate({
                                     productId: product.id,
                                     values: {
-                                      quantity: Math.max(1, item.quantity - 1),
+                                      quantity: Math.max(
+                                        1,
+                                        Number(item.quantity) - 1
+                                      ),
                                     },
                                   })
                                 }
@@ -223,7 +226,9 @@ export default function Cart() {
                                 onClick={() =>
                                   addToCart.mutate({
                                     productId: product.id,
-                                    values: { quantity: item.quantity + 1 },
+                                    values: {
+                                      quantity: Number(item.quantity) + 1,
+                                    },
                                   })
                                 }
                                 className=" dark:hover:bg-gray-700"

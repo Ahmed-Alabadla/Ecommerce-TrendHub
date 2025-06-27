@@ -54,7 +54,6 @@ export default function CheckoutForm({ totalPrice }: { totalPrice: number }) {
     },
   });
   const onSubmit = (values: CheckoutFormType) => {
-    console.log("values", values);
     setShowPaymentDialog(true);
     setValidShippingData(values);
   };
@@ -81,8 +80,8 @@ export default function CheckoutForm({ totalPrice }: { totalPrice: number }) {
         },
       });
 
-      queryClient.invalidateQueries({ queryKey: ORDER_QUERY_KEY });
-      queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
+      queryClient.resetQueries({ queryKey: ORDER_QUERY_KEY });
+      queryClient.resetQueries({ queryKey: CART_QUERY_KEY });
     }
     if (selectedPaymentMethod === "cash") {
       checkoutCash.mutate({
@@ -91,7 +90,7 @@ export default function CheckoutForm({ totalPrice }: { totalPrice: number }) {
           postalCode: Number(validShippingData.postalCode),
         },
       });
-      queryClient.invalidateQueries({ queryKey: ORDER_QUERY_KEY });
+      queryClient.resetQueries({ queryKey: ORDER_QUERY_KEY });
       queryClient.resetQueries({ queryKey: CART_QUERY_KEY });
     }
   };
@@ -100,7 +99,7 @@ export default function CheckoutForm({ totalPrice }: { totalPrice: number }) {
   if (checkoutCash.isSuccess) {
     setShowPaymentDialog(false);
     router.push(`/orders/${checkoutCash.data.id}`);
-    queryClient.invalidateQueries({ queryKey: ORDER_QUERY_KEY });
+    queryClient.resetQueries({ queryKey: ORDER_QUERY_KEY });
     queryClient.resetQueries({ queryKey: CART_QUERY_KEY });
   }
 
@@ -112,7 +111,7 @@ export default function CheckoutForm({ totalPrice }: { totalPrice: number }) {
     if (!checkoutCard.data.session_url) {
       router.push(`/orders/${checkoutCard.data.id}`);
     }
-    queryClient.invalidateQueries({ queryKey: ORDER_QUERY_KEY });
+    queryClient.resetQueries({ queryKey: ORDER_QUERY_KEY });
     queryClient.resetQueries({ queryKey: CART_QUERY_KEY });
   }
 

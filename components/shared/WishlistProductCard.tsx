@@ -18,7 +18,12 @@ export default function WishlistProductCard({
   const addToCart = useAddToCart();
 
   const handleAddToCart = () => {
-    addToCart.mutate({ productId: product.id });
+    addToCart.mutate({
+      productId: product.id,
+      values: {
+        quantity: 1,
+      },
+    });
 
     toast.success("Added to cart", {
       description: `${product.name} has been added to your cart.`,

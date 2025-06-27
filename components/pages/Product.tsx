@@ -309,6 +309,9 @@ export default function Product({ id }: { id: string }) {
               onClick={() => {
                 addToCart.mutate({
                   productId: product.id,
+                  values: {
+                    quantity: 1,
+                  },
                 });
               }}
               disabled={isOutOfStock}

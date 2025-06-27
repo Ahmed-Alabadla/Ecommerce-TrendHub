@@ -19,6 +19,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const handleAddToCart = () => {
     addToCart.mutate({
       productId: product.id,
+      values: {
+        quantity: 1,
+      },
     });
   };
 
