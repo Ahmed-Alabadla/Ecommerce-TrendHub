@@ -30,7 +30,7 @@ import {
 } from "@/hooks/useOrder";
 import { queryClient } from "@/lib/react-query/client";
 import { CART_QUERY_KEY } from "@/hooks/useCart";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 type CheckoutFormType = z.infer<typeof ShippingAddressSchema>;
 type PaymentMethod = "cash" | "card";
@@ -41,6 +41,8 @@ export default function CheckoutForm({ totalPrice }: { totalPrice: number }) {
     useState<PaymentMethod | null>(null);
   const [validShippingData, setValidShippingData] =
     useState<CheckoutFormType | null>(null);
+
+  const router = useRouter();
 
   const form = useForm<CheckoutFormType>({
     resolver: zodResolver(ShippingAddressSchema),
@@ -78,6 +80,9 @@ export default function CheckoutForm({ totalPrice }: { totalPrice: number }) {
           postalCode: Number(validShippingData.postalCode),
         },
       });
+
+      queryClient.invalidateQueries({ queryKey: ORDER_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
     }
     if (selectedPaymentMethod === "cash") {
       checkoutCash.mutate({
@@ -86,24 +91,29 @@ export default function CheckoutForm({ totalPrice }: { totalPrice: number }) {
           postalCode: Number(validShippingData.postalCode),
         },
       });
-    }
-
-    if (checkoutCard.isSuccess || checkoutCash.isSuccess) {
-      // Close dialog and redirect
-      setShowPaymentDialog(false);
+      queryClient.invalidateQueries({ queryKey: ORDER_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
     }
   };
 
+  // Handle success for cash payments - redirect to order page
   if (checkoutCash.isSuccess) {
-    queryClient.resetQueries({ queryKey: CART_QUERY_KEY });
-    queryClient.resetQueries({ queryKey: ORDER_QUERY_KEY });
-    redirect(`orders/${checkoutCash.data.id}`);
+    setShowPaymentDialog(false);
+    router.push(`/orders/${checkoutCash.data.id}`);
+    queryClient.invalidateQueries({ queryKey: ORDER_QUERY_KEY });
+    queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
   }
 
+  // Handle success for card payments - dialog will close, redirect handled in hook
   if (checkoutCard.isSuccess) {
-    queryClient.resetQueries({ queryKey: CART_QUERY_KEY });
-    queryClient.resetQueries({ queryKey: ORDER_QUERY_KEY });
-    redirect(checkoutCard.data.session_url);
+    setShowPaymentDialog(false);
+    // Redirect to session_url is handled in the hook
+    // If no session_url, redirect to order details
+    if (!checkoutCard.data.session_url) {
+      router.push(`/orders/${checkoutCard.data.id}`);
+    }
+    queryClient.invalidateQueries({ queryKey: ORDER_QUERY_KEY });
+    queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
   }
 
   return (

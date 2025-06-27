@@ -39,7 +39,7 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
   cookieStore.set("access_token", access_token, {
     // httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    maxAge: 60 * 60 * 12, // 12 hours
+    maxAge: 60 * 60 * 24 * 7, // 7 days
     path: "/",
     sameSite: "lax",
   });
@@ -191,7 +191,7 @@ export const refreshAccessToken = async () => {
   cookieStore.set("access_token", access_token, {
     // httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    maxAge: 60 * 60 * 12, // 12 hours
+    maxAge: 60 * 60 * 24 * 7, // 7 days
     path: "/",
     sameSite: "lax",
   });

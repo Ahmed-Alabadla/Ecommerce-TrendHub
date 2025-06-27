@@ -21,8 +21,8 @@ export const useCart = () => {
   return useQuery({
     queryKey: CART_QUERY_KEY,
     queryFn: apiGetMyCart,
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    gcTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 1 * 60 * 1000, // 1 minutes
+    gcTime: 1 * 60 * 1000, // 1 minutes
     retry: 1,
     enabled: !!token,
   });
